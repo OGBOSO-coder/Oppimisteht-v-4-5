@@ -14,6 +14,9 @@ public partial class WebStoreContext : DbContext
         : base(options)
     {
     }
+    
+    public virtual DbSet<DiscountCode> DiscountCodes { get; set; }
+
 
     public virtual DbSet<Carrier> Carriers { get; set; }
 
@@ -40,6 +43,8 @@ public partial class WebStoreContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresEnum<WebStore.Entities.DiscountType>("public", "discount_type");
+
         modelBuilder.Entity<Address>(entity =>
         {
             entity.HasKey(e => e.AddressId).HasName("addresses_pkey");
@@ -330,6 +335,36 @@ public partial class WebStoreContext : DbContext
 
             entity.Property(o => o.DeliveredDate)
                 .HasColumnName("delivered_date");
+        });
+        
+        modelBuilder.Entity<DiscountCode>(entity =>
+        {
+            entity.HasKey(e => e.DiscountCodeId).HasName("discount_codes_pkey");
+
+            entity.ToTable("discount_codes");
+
+            entity.Property(e => e.DiscountCodeId).HasColumnName("discount_code_id");
+
+            entity.Property(e => e.Code)
+                .IsRequired()
+                .HasMaxLength(50)
+                .HasColumnName("code");
+
+            entity.Property(e => e.Description)
+                .HasMaxLength(255)
+                .HasColumnName("description");
+
+            entity.Property(e => e.DiscountType)
+                .HasColumnType("discount_type")
+                .HasColumnName("discount_type");
+
+            entity.Property(e => e.DiscountValue).HasColumnName("discount_value");
+
+            entity.Property(e => e.ExpirationDate).HasColumnName("expiration_date");
+
+            entity.Property(e => e.MaxUsage).HasColumnName("max_usage");
+
+            entity.Property(e => e.TimesUsed).HasColumnName("times_used");
         });
 
         OnModelCreatingPartial(modelBuilder);
